@@ -1,0 +1,3 @@
+# What are checksums and what are they useful for?
+Checksums are way to verify the data over wire or wirelessly. It validates the data integrity of a packet. Checksums are useful for detecting errors in a packet. 
+There are various ways of computing a checksum. The one that I have mostly used is a CRC method. I have used checksum whenever I am trying to send or receive a packet between peripherals or microcontroller or between microcontrollers via a communication medium. By adding checksum you do add overhead to the packet but now you'll have data/packet that you can trust. I feel checksums are integral part of a communication protocol and a must have for a robust system.
