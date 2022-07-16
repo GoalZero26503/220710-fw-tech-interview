@@ -10,7 +10,9 @@ typedef enum {
   STATUS_ERROR = 1,
 } STATUS_CODE;
 
-#define BITS_IN_A_BYTE 8
+#define BITS_IN_A_BYTE                                  (8)
+#define MAX_FOUR_BYTE_VARIABLE_LENGTH                   (4)
+#define MAX_BIT_POSITION_IN_FOUR_BYTE_VARIABLE_LENGTH   ((BITS_IN_A_BYTE * MAX_FOUR_BYTE_VARIABLE_LENGTH) - 1)
 
 // Assumes little endian
 void print_bits(void const * const ptr, size_t const size) {
@@ -29,6 +31,7 @@ void print_bits(void const * const ptr, size_t const size) {
   }
 }
 
+
 /**
  * @brief Gets result of the value of the bit at the bit_offset for the given
  * data buffer of byte_length. i.e. for 4-byte buffer, offset=31 is msb, offset=0 is lsb.
@@ -39,7 +42,24 @@ void print_bits(void const * const ptr, size_t const size) {
  * @param result - binary value to store the result
  * @return STATUS_CODE - STATUS_SUCCESS if request okay, STATUS_ERROR if out of bounds request
  */
-// TODO: define get_bit function
+static STATUS_CODE get_bit(uint8_t *data, uint16_t byte_length, uint8_t bit_offset, bool *result) {
+    // Check against the argument. Defensive programming.
+    if ((NULL == data)                                || 
+        (byte_length > MAX_FOUR_BYTE_VARIABLE_LENGTH) || 
+        (bit_offset > MAX_BIT_POSITION_IN_FOUR_BYTE_VARIABLE_LENGTH)) {
+        return STATUS_ERROR;
+    }
+    
+    // Extract the index of the buffer
+    uint8_t index = bit_offset / BITS_IN_A_BYTE;
+
+    // Extract the bit postion of the byte in the buffer
+    uint8_t bit_position = bit_offset % BITS_IN_A_BYTE;
+    
+    *result = (bool)((data[index] >> bit_position) & 1);
+    
+    return STATUS_SUCCESS;
+}
 
 /**
  * @brief Sets the bit at the given offset to 1.
@@ -50,7 +70,24 @@ void print_bits(void const * const ptr, size_t const size) {
  * @param bit_offset - the offset of the bit to set (0 is lsb)
  * @return STATUS_CODE - STATUS_SUCCESS if request okay, STATUS_ERROR if out of bounds request
  */
-// TODO: define set_bit function
+static STATUS_CODE set_bit(uint8_t *data, uint16_t byte_length, uint8_t bit_offset) {
+    // Check against the argument. Defensive programming.
+    if ((NULL == data)                                || 
+        (byte_length > MAX_FOUR_BYTE_VARIABLE_LENGTH) || 
+        (bit_offset > MAX_BIT_POSITION_IN_FOUR_BYTE_VARIABLE_LENGTH)) {
+        return STATUS_ERROR;
+    }
+    
+    // Extract the index of the buffer
+    uint8_t index = bit_offset / BITS_IN_A_BYTE;
+
+    // Extract the bit postion of the byte in the buffer
+    uint8_t bit_position = bit_offset % BITS_IN_A_BYTE;
+    
+    data[index] |= 1 << bit_position;
+    
+    return STATUS_SUCCESS;
+}
 
 /**
  * @brief Sets the bit at the given offset to 0.
@@ -61,7 +98,24 @@ void print_bits(void const * const ptr, size_t const size) {
  * @param bit_offset - the offset of the bit to clear (0 is lsb)
  * @return STATUS_CODE - STATUS_SUCCESS if request okay, STATUS_ERROR if out of bounds request
  */
-// TODO: define clear_bit function
+static STATUS_CODE clear_bit(uint8_t *data, uint16_t byte_length, uint8_t bit_offset) {
+    // Check against the argument. Defensive programming.
+    if ((NULL == data)                                || 
+        (byte_length > MAX_FOUR_BYTE_VARIABLE_LENGTH) || 
+        (bit_offset > MAX_BIT_POSITION_IN_FOUR_BYTE_VARIABLE_LENGTH)) {
+        return STATUS_ERROR;
+    }
+    
+    // Extract the index of the buffer
+    uint8_t index = bit_offset / BITS_IN_A_BYTE;
+
+    // Extract the bit postion of the byte in the buffer
+    uint8_t bit_position = bit_offset % BITS_IN_A_BYTE;
+    
+    data[index] &= ~(1 << bit_position);
+    
+    return STATUS_SUCCESS;
+}
 
 void get_bit_test() {
   uint8_t pass = 0;
